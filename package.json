@@ -1,0 +1,50 @@
+{
+  "name": "your-app",
+  "version": "1.0.0",
+  "main": "electron/main.js",
+  "build": {
+    "appId": "com.yourcompany.yourapp",
+    "productName": "DISC Personality App",
+    "asar": true,
+    "files": [
+      "electron/**/*",
+      "backend/**/*",
+      "my-project/dist/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "railway_reg.db",
+        "to": "railway_reg.db"
+      },
+      {
+        "from": "electron/node.exe",
+        "to": "node.exe"
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true
+    },
+    "directories": {
+      "buildResources": "assets"
+    }
+  },
+  "scripts": {
+  "dev": "npm run build && electron .",
+  "build": "cd my-project && npm install && npm run build",
+  "postinstall": "electron-builder install-app-deps",
+  "pack": "electron-builder --dir",
+  "dist": "electron-builder"
+},
+  "devDependencies": {
+    "electron": "^29.4.6",
+    "electron-builder": "^24.0.0"
+  }
+}

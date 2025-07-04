@@ -1,0 +1,285 @@
+[
+  {
+    "id": 1,
+    "question": "Which of the following best describes your approach to work?",
+    "options": [
+      { "label": "A", "text": "I take charge and aim for quick results.", "type": "D" },
+      { "label": "B", "text": "I motivate others and maintain a positive atmosphere.", "type": "I" },
+      { "label": "C", "text": "I focus on teamwork and support others.", "type": "S" },
+      { "label": "D", "text": "I ensure accuracy and follow processes.", "type": "C" }
+    ]
+  },
+  {
+    "id": 2,
+    "question": "How do you handle deadlines?",
+    "options": [
+      { "label": "A", "text": "I use them as motivation to keep energy high.", "type": "I" },
+      { "label": "B", "text": "I push to meet them ahead of time.", "type": "D" },
+      { "label": "C", "text": "I plan carefully to meet them without stress.", "type": "S" },
+      { "label": "D", "text": "I double-check details to ensure everything is correct before submitting.", "type": "C" }
+    ]
+  },
+  {
+    "id": 3,
+    "question": "What is your leadership style?",
+    "options": [
+      { "label": "A", "text": "Supportive and patient.", "type": "S" },
+      { "label": "B", "text": "Direct and goal-oriented.", "type": "D" },
+      { "label": "C", "text": "Charismatic and engaging.", "type": "I" },
+      { "label": "D", "text": "Analytical and methodical.", "type": "C" }
+    ]
+  },
+  {
+    "id": 4,
+    "question": "How do you react when a project is falling behind schedule?",
+    "options": [
+      { "label": "A", "text": "I work with others to calmly address the delays.", "type": "S" },
+      { "label": "B", "text": "I reassess the plan to identify and correct the issues.", "type": "C" },
+      { "label": "C", "text": "I rally the team and boost morale to get back on track.", "type": "I" },
+      { "label": "D", "text": "I take control and drive the team to catch up.", "type": "D" }
+    ]
+  },
+  {
+    "id": 5,
+    "question": "What motivates you most in a work environment?",
+    "options": [
+      { "label": "A", "text": "Precision and quality in work.", "type": "C" },
+      { "label": "B", "text": "Stability and a harmonious team.", "type": "S" },
+      { "label": "C", "text": "Achieving ambitious goals.", "type": "D" },
+      { "label": "D", "text": "Recognition and social interactions.", "type": "I" }
+    ]
+  },
+  {
+    "id": 6,
+    "question": "How do you approach problem-solving?",
+    "options": [
+      { "label": "A", "text": "I analyze the problem thoroughly before acting.", "type": "C" },
+      { "label": "B", "text": "I seek a solution that everyone is comfortable with.", "type": "S" },
+      { "label": "C", "text": "I brainstorm with others and think creatively.", "type": "I" },
+      { "label": "D", "text": "I quickly find the most efficient solution.", "type": "D" }
+    ]
+  },
+  {
+    "id": 7,
+    "question": "When communicating, what is your preference?",
+    "options": [
+      { "label": "A", "text": "Being direct and to the point.", "type": "D" },
+      { "label": "B", "text": "Being considerate and supportive.", "type": "S" },
+      { "label": "C", "text": "Being clear and detailed.", "type": "C" },
+      { "label": "D", "text": "Being enthusiastic and engaging.", "type": "I" }
+    ]
+  },
+  {
+    "id": 8,
+    "question": "How do you handle criticism?",
+    "options": [
+      { "label": "A", "text": "I discuss it openly and move on quickly.", "type": "I" },
+      { "label": "B", "text": "I carefully evaluate it to improve my performance.", "type": "C" },
+      { "label": "C", "text": "I reflect on it and consider how it affects the team.", "type": "S" },
+      { "label": "D", "text": "I address it directly and take action if needed.", "type": "D" }
+    ]
+  },
+  {
+    "id": 9,
+    "question": "What is your approach to decision-making?",
+    "options": [
+      { "label": "A", "text": "I base my decisions on data and thorough analysis.", "type": "C" },
+      { "label": "B", "text": "I make quick, decisive choices.", "type": "D" },
+      { "label": "C", "text": "I prefer to take my time and avoid risks.", "type": "S" },
+      { "label": "D", "text": "I consult with others and consider their input.", "type": "I" }
+    ]
+  },
+  {
+    "id": 10,
+    "question": "When you face a setback, how do you typically respond?",
+    "options": [
+      { "label": "A", "text": "I push harder to overcome it.", "type": "D" },
+      { "label": "B", "text": "I remain calm and adjust my approach.", "type": "S" },
+      { "label": "C", "text": "I stay positive and encourage others.", "type": "I" },
+      { "label": "D", "text": "I analyze what went wrong and plan to avoid it in the future.", "type": "C" }
+    ]
+  },
+  {
+    "id": 11,
+    "question": "How do you prefer to work within a team?",
+    "options": [
+      { "label": "A", "text": "I focus on the details and ensure quality.", "type": "C" },
+      { "label": "B", "text": "I support others and help maintain harmony.", "type": "S" },
+      { "label": "C", "text": "I collaborate and keep the team energized.", "type": "I" },
+      { "label": "D", "text": "I lead and drive the group forward.", "type": "D" }
+    ]
+  },
+  {
+    "id": 12,
+    "question": "How do you handle stress at work?",
+    "options": [
+      { "label": "A", "text": "I become more focused and organized.", "type": "C" },
+      { "label": "B", "text": "I stay calm and rely on routines to manage stress.", "type": "S" },
+      { "label": "C", "text": "I use humor and positive thinking to diffuse tension.", "type": "I" },
+      { "label": "D", "text": "I tackle challenges head-on and keep moving.", "type": "D" }
+    ]
+  },
+  {
+    "id": 13,
+    "question": "What is your approach to change?",
+    "options": [
+      { "label": "A", "text": "I embrace it and take the lead in adapting.", "type": "D" },
+      { "label": "B", "text": "I analyze the impact and plan accordingly.", "type": "C" },
+      { "label": "C", "text": "I see it as an opportunity and encourage others to join in.", "type": "I" },
+      { "label": "D", "text": "I prefer gradual changes that don't disrupt the routine.", "type": "S" }
+    ]
+  },
+  {
+    "id": 14,
+    "question": "When starting a new task, how do you begin?",
+    "options": [
+      { "label": "A", "text": "I gather input from others and brainstorm ideas.", "type": "I" },
+      { "label": "B", "text": "I research and plan before taking action.", "type": "C" },
+      { "label": "C", "text": "I dive in and take immediate action.", "type": "D" },
+      { "label": "D", "text": "I prepare carefully and proceed steadily.", "type": "S" }
+    ]
+  },
+  {
+    "id": 15,
+    "question": "How do you typically respond to conflict?",
+    "options": [
+      { "label": "A", "text": "I confront it directly and resolve it quickly.", "type": "D" },
+      { "label": "B", "text": "I seek a peaceful resolution that satisfies everyone.", "type": "I" },
+      { "label": "C", "text": "I try to smooth things over and keep the mood light.", "type": "S" },
+      { "label": "D", "text": "I analyze the situation and find a logical solution.", "type": "C" }
+    ]
+  },
+  {
+    "id": 16,
+    "question": "What drives you to succeed?",
+    "options": [
+      { "label": "A", "text": "The pursuit of excellence and accuracy.", "type": "C" },
+      { "label": "B", "text": "A desire to win and achieve top results.", "type": "D" },
+      { "label": "C", "text": "The chance to inspire and lead others.", "type": "I" },
+      { "label": "D", "text": "The satisfaction of being reliable and dependable.", "type": "S" }
+    ]
+  },
+  {
+    "id": 17,
+    "question": "How do you handle feedback from others?",
+    "options": [
+      { "label": "A", "text": "I consider it and make changes if necessary.", "type": "D" },
+      { "label": "B", "text": "I carefully assess it and refine my work.", "type": "C" },
+      { "label": "C", "text": "I appreciate it and use it to improve my approach.", "type": "I" },
+      { "label": "D", "text": "I take it to heart and adjust to maintain harmony.", "type": "S" }
+    ]
+  },
+  {
+    "id": 18,
+    "question": "What is your approach to planning?",
+    "options": [
+      { "label": "A", "text": "I set ambitious goals and outline steps to achieve them.", "type": "D" },
+      { "label": "B", "text": "I develop detailed plans and follow them closely.", "type": "C" },
+      { "label": "C", "text": "I plan carefully to ensure consistency.", "type": "S" },
+      { "label": "D", "text": "I create flexible plans that allow for spontaneity.", "type": "I" }
+    ]
+  },
+  {
+    "id": 19,
+    "question": "How do you prioritize tasks?",
+    "options": [
+      { "label": "A", "text": "I tackle the most important tasks first.", "type": "D" },
+      { "label": "B", "text": "I order tasks based on logical importance.", "type": "C" },
+      { "label": "C", "text": "I prioritize tasks that maintain stability.", "type": "S" },
+      { "label": "D", "text": "I focus on tasks that involve collaboration.", "type": "I" }
+    ]
+  },
+  {
+    "id": 20,
+    "question": "What describes your work ethic?",
+    "options": [
+      { "label": "A", "text": "Detail-oriented and thorough.", "type": "C" },
+      { "label": "B", "text": "Energetic and people-oriented.", "type": "I" },
+      { "label": "C", "text": "Driven and results-focused.", "type": "D" },
+      { "label": "D", "text": "Dependable and consistent.", "type": "S" }
+    ]
+  },
+  {
+    "id": 21,
+    "question": "How do you prefer to be recognized for your work?",
+    "options": [
+      { "label": "A", "text": "Quiet appreciation and acknowledgment.", "type": "S" },
+      { "label": "B", "text": "Public acknowledgment of achievements.", "type": "D" },
+      { "label": "C", "text": "Recognition of accuracy and quality.", "type": "C" },
+      { "label": "D", "text": "Positive feedback and social recognition.", "type": "I" }
+    ]
+  },
+  {
+    "id": 22,
+    "question": "How do you approach learning new skills?",
+    "options": [
+      { "label": "A", "text": "I prefer interactive and group-based learning.", "type": "I" },
+      { "label": "B", "text": "I learn quickly through hands-on experience.", "type": "D" },
+      { "label": "C", "text": "I research thoroughly and practice until perfect.", "type": "C" },
+      { "label": "D", "text": "I take a steady, methodical approach to learning.", "type": "S" }
+    ]
+  },
+  {
+    "id": 23,
+    "question": "What is your reaction to strict rules or guidelines?",
+    "options": [
+      { "label": "A", "text": "I respect and follow them closely.", "type": "C" },
+      { "label": "B", "text": "I adhere to them to maintain order.", "type": "S" },
+      { "label": "C", "text": "I adapt them to fit the situation.", "type": "I" },
+      { "label": "D", "text": "I follow them if they help achieve goals.", "type": "D" }
+    ]
+  },
+  {
+    "id": 24,
+    "question": "How do you manage your time?",
+    "options": [
+      { "label": "A", "text": "I balance tasks with social interaction.", "type": "I" },
+      { "label": "B", "text": "I prioritize tasks that yield the greatest results.", "type": "D" },
+      { "label": "C", "text": "I plan my schedule carefully to ensure accuracy and efficiency.", "type": "C" },
+      { "label": "D", "text": "I stick to a routine to manage time effectively.", "type": "S" }
+    ]
+  },
+  {
+    "id": 25,
+    "question": "What is your approach to handling risks?",
+    "options": [
+      { "label": "A", "text": "I take calculated risks to achieve goals.", "type": "D" },
+      { "label": "B", "text": "I analyze risks thoroughly before deciding.", "type": "C" },
+      { "label": "C", "text": "I prefer to avoid risks and maintain stability.", "type": "S" },
+      { "label": "D", "text": "I consider risks if they lead to exciting opportunities.", "type": "I" }
+    ]
+  },
+  {
+    "id": 26,
+    "question": "How do you prefer to handle new challenges at work?",
+    "options": [
+      { "label": "A", "text": "I analyze the challenge in detail before taking action.", "type": "C" },
+      { "label": "B", "text": "I collaborate with others to find a creative solution.", "type": "I" },
+      { "label": "C", "text": "I take charge and address the challenge head-on.", "type": "D" },
+      { "label": "D", "text": "I approach it carefully, considering the impact on others.", "type": "S" }
+    ]
+  },
+  {
+    "id": 27,
+    "question": "What role do you usually take in group discussions?",
+    "options": [
+      { "label": "A", "text": "I contribute enthusiastically and encourage participation.", "type": "I" },
+      { "label": "B", "text": "I provide well-thought-out input based on facts.", "type": "C" },
+      { "label": "C", "text": "I lead the conversation and direct the focus.", "type": "D" },
+      { "label": "D", "text": "I listen carefully and offer support where needed.", "type": "S" }
+    ]
+  },
+  {
+    "id": 28,
+    "question": "How do you react to sudden changes in a project?",
+    "options": [
+      { "label": "A", "text": "I find a way to make the changes exciting and positive.", "type": "I" },
+      { "label": "B", "text": "I assess how the changes will affect the overall plan before proceeding.", "type": "C" },
+      { "label": "C", "text": "I prefer to understand the reasons behind the change and adapt slowly.", "type": "S" },
+      { "label": "D", "text": "I adapt quickly and keep things moving forward.", "type": "D" }
+    ]
+  }
+]
+
+  
+  
