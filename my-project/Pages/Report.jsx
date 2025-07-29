@@ -1,164 +1,400 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Loader2, Train, AlertTriangle, FileDown, BarChart3, LogOut, BookOpen } from "lucide-react";
+import axios from "axios";
+import DISCChart from "../components/DiscChart"; // Make sure this path is correct
 
+// --- START: Data and Logic from DISC PDF ---
 
-import { useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Loader2, Train, AlertTriangle, CheckCircle, XCircle, FileDown, BarChart3, LogOut } from "lucide-react"
-import axios from "axios"
-import DISCChart from "../components/DiscChart"
+// Helper function to get the descriptive level for a score from the PDF
+const getScoreLevel = (score) => {
+  if (score >= 48) return "Extreme HIGH";
+  if (score >= 40) return "Strong";
+  if (score > 30) return "High"; // Custom addition for scores between 31-39
+  if (score >= 29 && score <= 31) return "Midline";
+  if (score >= 20) return "Strong (Low)";
+  if (score >= 12) return "Extreme LOW";
+  return "Very Low";
+};
 
-const personalityTypes = {
-  "S/C": {
-    title: "Reliable Analyst",
-    suitability: "most",
-    description:
-      "Calm, patient, highly disciplined. Excellent for routine handling, protocol-following, and long shifts.",
+// Descriptions for each DISC trait from Page 2 of the PDF
+const discTraitDescriptions = {
+  D: {
+    title: "Dominant",
+    measures: "How a person solves problems and responds to challenges",
+    higherScore:
+      "The more active and aggressive in trying to overcome problems and obstacles; person will anger more quickly",
+    lowerScore: "The greater the tendency to gather data prior to making a decision; person will be slower to anger",
+  },
+  I: {
+    title: "Influencing",
+    measures: "How a person attempts to influence or persuade others",
+    higherScore:
+      "The more verbal and persuasive in trying to influence toward his/her way of thinking; person will be more joyful and optimistic",
+    lowerScore: "The more person will use data and facts; person will be more pessimistic",
+  },
+  S: {
+    title: "Steadiness",
+    measures: "The pace at which a person undertakes activities and responsibilities",
+    higherScore:
+      "The more person prefers to start, complete one project at a time, also more resistant to change; person will be less emotional, more difficult to read",
+    lowerScore: "The more person will want faster pace and change; person will be more emotional and expressive",
   },
   C: {
     title: "Compliant",
-    suitability: "most",
-    description: "Naturally detail-oriented, accurate, rule-following – critical for rail safety.",
+    measures: "How a person responds to rules and regulations set by others",
+    higherScore: "The more person will comply to rules set by others; person will be motivated more out of fear",
+    lowerScore: "The more person will challenge rules and seek independence; person will be more fearless",
   },
-  "C/S": {
-    title: "Loyal Perfectionist",
-    suitability: "most",
-    description: "Balanced between rule-following and steady performance. Best for long-term responsibility.",
-  },
-  "C/D": {
-    title: "The Enforcer",
-    suitability: "most",
-    description:
-      "Analytical with decision-making under pressure. Ideal for complex train operations or supervisory loco pilots.",
-  },
-  S: {
-    title: "Steady",
-    suitability: "most",
-    description:
-      "Peaceful and reliable. Excellent under normal and repetitive conditions. May need training for emergency response.",
-  },
-  "D/C": {
-    title: "Architect",
-    suitability: "most",
-    description: "Strong decision-maker with high accuracy. Good for leadership roles or handling breakdowns.",
-  },
-  "S/D": {
-    title: "Determined Helper",
-    suitability: "most",
-    description: "Calm with task-focus. Reliable under pressure. Might struggle with fast adaptability unless trained.",
-  },
-  "C/I": {
-    title: "Creative Analyst",
-    suitability: "conditional",
-    description:
-      "Rule-following and expressive. Can be trained, but may overthink. Needs stricter protocol conditioning.",
-  },
-  "S/I": {
-    title: "Compassionate Influencer",
-    suitability: "conditional",
-    description: "Friendly and steady. May be too people-focused or slow in emergencies. Needs more alertness drills.",
-  },
-  D: {
-    title: "Dominant",
-    suitability: "conditional",
-    description: "Decisive but might bypass rules. Suitable only if strong discipline is instilled.",
-  },
-  "D/S": {
-    title: "Driver Supporter",
-    suitability: "conditional",
-    description: "Confident and steady. Good balance, but needs focus on protocol reinforcement.",
-  },
-  "I/S": {
-    title: "Harmonizer",
-    suitability: "conditional",
-    description: "Warm but possibly too trusting or distracted. Needs strict SOP training.",
-  },
-  I: {
-    title: "Influencer",
-    suitability: "least",
-    description: "Too social and distracted. May not focus well under routine or strict rule-driven tasks.",
-  },
-  "I/D": {
-    title: "Persuasive Leader",
-    suitability: "least",
-    description: "Bold and talkative. May challenge authority or overlook safety details.",
-  },
-  "D/I": {
-    title: "Initiator",
-    suitability: "least",
-    description: "Action-oriented and assertive, but may ignore safety steps. Not ideal for rule-bound tasks.",
-  },
-  "I/C": {
-    title: "Expressive Analyst",
-    suitability: "least",
-    description: "Conflict between creativity and rule-following. Can get mentally overloaded.",
-  },
-}
+};
+
+// Personality patterns from Pages 3 & 4 of the PDF, with corrected syntax.
+const personalityPatternsData = {
+    "D_I_EQUAL": {
+        sequence: "D=I",
+        pattern: "PERSUADER: Influencer/Implementer/Inspires",
+        subtraits: "Self-motivation, Independence, Enthusiasm, Self-confidence",
+        description:
+          "High energy, optimistic, aggressive, confident; goal-minded, harnesses people to accomplish goals; can be impatient, having little time for details; loses interest once challenge is gone; goal is control of environment; fears losing, failing, loss of prestige.",
+    },
+    IS: {
+        sequence: "IS; SI",
+        pattern: "RELATER: Advisor/Merciful/Counselor",
+        subtraits: "Friendliness, Self-confidence, Patience, Persistence",
+        description:
+          "Warm, sympathetic, understanding; good listener, stable, dependable; won't force ideas on others; criticism of his/her work a personal affront; can overuse the indirect approach; goal is maintaining friendships; fears social rejection.",
+    },
+    SCI: {
+        sequence: "SCI; SIC",
+        pattern: "SUPPORTER: Advocate/Peacemaker/Agent",
+        subtraits: "Friendliness, Patience, Co-operativeness",
+        description:
+          "Can be very detail-oriented; moderate, thorough, dependable; steady, sociable, independent, individualistic; tends to support underdog; goal is acceptance from others; fears dissension, conflict.",
+    },
+    IC: {
+        sequence: "IC; CI",
+        pattern: "PROMOTER/ANALYZER: Assessor/Teacher/Appraiser",
+        subtraits: "Friendliness, Enthusiasm, Co-operativeness, Sensitivity",
+        description:
+          "Outgoing, at home with strangers, develops friends easily; promotes projects of others and his/her own; seeks freedom from control; goal is approval, popularity; fears loss of social recognition.",
+    },
+    DS: {
+        sequence: "DS; DSC; SD",
+        pattern: "CONDUCTOR/COORDINATOR: Attainer/Achiever/Perseveres",
+        subtraits: "Efficiency, Independence, Thoughtfulness, Persistence, Accuracy",
+        description:
+          "Objective, analytical, determined, task-oriented; independent, questioning, practical; may appear blunt and non-demonstrative; goal is personal accomplishment (sometimes at expense of the group); fears those with different or inferior work standards.",
+    },
+    DI: {
+        sequence: "DI",
+        pattern: "PERSUADER: Concluder/Doer/Gets results",
+        subtraits: "Self-motivation, Independence, Enthusiasm, Self-confidence",
+        description:
+          "Forceful, direct, individualistic; can be impatient, competitive; good leadership abilities; high standards, critical when standards not met; goal is dominance and independence; fears slowness or being seen as too jovial.",
+    },
+    I: {
+        sequence: "I",
+        pattern: "PROMOTER: Convincer/Persuader/Promoter",
+        subtraits: "Friendliness, Enthusiasm, Self-confidence",
+        description:
+          "Enthusiastic, optimistic, articulate in communication; can become careless, inconsistent and disorganized, but tries to look good and please others; goal is social approval and prestige; fears loss of social approval, conflict.",
+    },
+    DC: {
+        sequence: "DC; DCS; CD",
+        pattern: "IMPLEMENTOR/CONDUCTOR: Designer/Administrator/Creator",
+        subtraits: "Efficiency, Self-motivation, Accuracy, Sensitivity, Thoughtfulness",
+        description:
+          "Sensitive to problems, creative in finding solutions; high in foresight, often quite intelligent; can overuse bluntness and criticism; bored with routine, prefers working alone, doesn't trust easily; goal is dominance, discovering unique solutions; fears not being influential.",
+    },
+    D: {
+        sequence: "D",
+        pattern: "CONDUCTOR: Establisher/Visionary/Developer",
+        subtraits: "Efficiency, Self-motivation, Independence",
+        description:
+          "High ego strength, high standards; approaches issues alone rather than drawing others into the process; can be manipulative, controlling; has vision of “big picture”; very direct, forceful; goal is new challenges, opportunities; fears loss of control, lack of challenge.",
+    },
+    SDC: {
+        sequence: "SDC; SCD",
+        pattern: "COORDINATOR/SUPPORTER: Inquirer/Investigator/Consistent",
+        subtraits: "Efficiency, Thoughtfulness, Accuracy",
+        description:
+          "Patient, controlled, enjoys digging for clues and facts; easy-going and amiable; consistent, loyal, accommodating; slow to take initiative, doesn't adapt quickly to change; holds grudges, internalizes conflict; goal is maintaining clear systems; fears change, disorganization.",
+    },
+    C: {
+        sequence: "C",
+        pattern: "ANALYZER: Logical Thinker/Analytical/Objective",
+        subtraits: "Co-operativeness, Accuracy, Sensitivity",
+        description:
+          "Practical, proper, discrete, accurate; self-evaluating, critical of self and others; enjoys detail and logic; makes decisions slowly from logic rather than emotion; can over-analyze, be hurt easily; goal is to develop control, correctness; fears criticism, ridicule.",
+    },
+    CIS: {
+        sequence: "CIS; CSI; ISC; ICS",
+        pattern: "COORDINATOR/ANALYZER: Practitioner/Realist/Steadfast",
+        subtraits: "Friendliness, Patience, Co-operativeness",
+        description:
+          "Results-oriented, verbally fluent, loyal; friendly, enthusiastic, informal, talkative; may worry too much about what others think; can intellectualize and become restless and impatient; goal is to accomplish results through others; fears rejection, loss of security.",
+    },
+    CS: {
+        sequence: "CS; SC",
+        pattern: "COORDINATOR: Precisionist/Traditionalist/Perfectionist",
+        subtraits: "Patience, Thoughtfulness, Co-operativeness, Accuracy",
+        description:
+          "Orderly, systematic, precise, attentive to detail; tactful, highly diplomatic, extremely conscientious; can become bogged down in details, dislikes sudden changes; prefer protected, secure environment; goal is security; fears antagonism.",
+    },
+    ID: {
+        sequence: "ID",
+        pattern: "PERSUADER: Prompter/Communicator/Persuader",
+        subtraits: "Self-motivation, Independence, Enthusiasm, Self-confidence",
+        description:
+          "Outgoing, high interest in people, trusting; can gain respect and admiration from varied types of individuals; can be impulsive, overly enthusiastic, inattentive to the “little things”; prefers variety; goal is authority and prestige; fears rejection, being taken advantage of.",
+    },
+    S: {
+        sequence: "S",
+        pattern: "SUPPORTER: Technician/Specialist/Steady",
+        subtraits: "Patience, Thoughtfulness, Persistence",
+        description:
+          "Patient, loyal, consistent, helpful to friends; steady, calculating, reserved; not bored by routine; needs clear guidelines and rules; avoids confrontation, internalizes feelings; goal is maintaining status quo and an environment with few changes; fears loss of security, unplanned change.",
+    },
+    STRESS: {
+        sequence: "All scores around 30",
+        pattern: "Transition/Stress pattern",
+        subtraits: "N/A",
+        description:
+          "Lack of goal clarity; insufficient action planning, confusion, uncertainty, anxiety about expectations; behavior alternates between furious activity to slow, methodical action; can be brought on by periods of change—new job, new home, bad health, etc. Person will make quick decisions and then try to gain approval from others.",
+    },
+};
+
+// Function to find the personality pattern based on scores
+const determinePersonalityPattern = (scores) => {
+    const { D, I, S, C } = scores;
+    const scoreMap = [
+        { letter: "D", score: D },
+        { letter: "I", score: I },
+        { letter: "S", score: S },
+        { letter: "C", score: C },
+    ];
+
+    const highScores = scoreMap.filter((item) => item.score > 30).sort((a, b) => b.score - a.score);
+
+    if (
+        highScores.length >= 2 &&
+        highScores[0].score === highScores[1].score &&
+        ((highScores[0].letter === "D" && highScores[1].letter === "I") ||
+         (highScores[0].letter === "I" && highScores[1].letter === "D"))
+    ) {
+        return personalityPatternsData["D_I_EQUAL"];
+    }
+
+    let sequence = "";
+    if (highScores.length > 0) {
+        sequence = highScores.map((item) => item.letter).join("");
+    } else {
+        const allScores = scoreMap.map((s) => s.score);
+        const isStress = allScores.every((s) => s >= 28 && s <= 32);
+        if (isStress) return personalityPatternsData.STRESS;
+        
+        const highestOverall = [...scoreMap].sort((a, b) => b.score - a.score)[0];
+        sequence = highestOverall.letter;
+    }
+
+    const findPattern = (seq) => {
+        for (const key in personalityPatternsData) {
+            const pattern = personalityPatternsData[key];
+            const aliases = pattern.sequence.split(";").map((s) => s.trim());
+            if (aliases.includes(seq)) return pattern;
+        }
+        return null;
+    };
+
+    let foundPattern = findPattern(sequence);
+    if (!foundPattern && sequence.length > 2) {
+        foundPattern = findPattern(sequence.substring(0, 2));
+    }
+    if (!foundPattern && sequence.length > 1) {
+        foundPattern = findPattern(sequence.substring(0, 1));
+    }
+
+    return (
+        foundPattern || {
+            pattern: "Unique Combination",
+            sequence: sequence,
+            subtraits: "N/A",
+            description: `A specific pre-defined pattern for "${sequence}" was not found. Refer to the individual trait descriptions above to understand the combination of these dominant characteristics.`,
+        }
+    );
+};
+
+// A simple bar chart component for displaying a single score
+const DiscScoreBar = ({ score, label, colorClass }) => {
+    const level = getScoreLevel(score);
+    const levelColors = {
+      "Extreme HIGH": "bg-red-500 text-white",
+      "Strong": "bg-orange-500 text-white",
+      "High": "bg-yellow-400 text-gray-800",
+      "Midline": "bg-green-500 text-white",
+      "Strong (Low)": "bg-blue-400 text-white",
+      "Extreme LOW": "bg-indigo-500 text-white",
+      "Very Low": "bg-gray-400 text-white",
+    };
+  
+    return (
+      <div className="w-full">
+        <div className="flex justify-between items-center mb-1">
+          <h4 className="font-semibold">{label}</h4>
+          <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${levelColors[level]}`}>{level}</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="font-bold text-xl w-10 text-center">{score}</span>
+          <div className="w-full bg-gray-200 rounded-full h-3.5">
+            <div
+              className={`${colorClass} h-3.5 rounded-full`}
+              style={{ width: `${(score / 55) * 100}%` }}
+            ></div>
+          </div>
+        </div>
+      </div>
+    );
+};
+
+// The main component that renders the detailed report
+const DetailedDiscReport = ({ scores }) => {
+  const patternInfo = determinePersonalityPattern(scores);
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Score Breakdown</CardTitle>
+          <CardDescription>Your scores and their corresponding intensity levels.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <DiscScoreBar score={scores.D} label="D - Dominance" colorClass="bg-chart-1" />
+          <DiscScoreBar score={scores.I} label="I - Influence" colorClass="bg-chart-2" />
+          <DiscScoreBar score={scores.S} label="S - Steadiness" colorClass="bg-chart-3" />
+          <DiscScoreBar score={scores.C} label="C - Compliance" colorClass="bg-chart-4" />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Understanding Your Traits</CardTitle>
+          <CardDescription>What each DISC factor means based on your scores.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {Object.entries(discTraitDescriptions).map(([key, value], index) => {
+            const score = scores[key];
+            const isHigh = score > 30;
+            return (
+              <div key={key}>
+                <h3 className="font-bold text-lg text-gray-800">
+                  {value.title} ({key})
+                </h3>
+                <p className="text-sm text-gray-500 italic mb-2">{value.measures}</p>
+                <p className="text-sm">
+                  <span className={`font-semibold ${isHigh ? "text-blue-600" : "text-gray-600"}`}>
+                    {isHigh ? "A higher score suggests:" : "A lower score suggests:"}
+                  </span>{" "}
+                  {isHigh ? value.higherScore : value.lowerScore}
+                </p>
+                {index < 3 && <Separator className="my-4" />}
+              </div>
+            );
+          })}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Deduced Personality Pattern</CardTitle>
+          <CardDescription className="text-base font-semibold text-blue-700">{patternInfo.pattern}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <h4 className="font-semibold text-md mb-1">Sequence</h4>
+            <p className="text-sm text-gray-700 font-mono bg-gray-100 p-2 rounded">{patternInfo.sequence}</p>
+          </div>
+          <Separator />
+          <div>
+            <h4 className="font-semibold text-md mb-1">Associated Subtraits</h4>
+            <p className="text-sm text-gray-700">{patternInfo.subtraits}</p>
+          </div>
+          <Separator />
+          <div>
+            <h4 className="font-semibold text-md mb-1">Pattern Description</h4>
+            <p className="text-sm leading-relaxed text-gray-700">{patternInfo.description}</p>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+// --- END: Data and Logic from DISC PDF ---
 
 export default function Component() {
-  const [hrmsId, setHrmsId] = useState("")
-  const [data, setData] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
+  const [hrmsId, setHrmsId] = useState("");
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const [exporting, setExporting] = useState(false)
-  const [exportError, setExportError] = useState("")
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState("");
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem("adminToken")
-    navigate("/")
-  }
+    localStorage.removeItem("adminToken");
+    navigate("/");
+  };
 
   const fetchReport = async () => {
     if (!hrmsId.trim()) {
-      setError("Please enter HRMS ID")
-      return
+      setError("Please enter HRMS ID");
+      return;
     }
 
-    const token = localStorage.getItem("adminToken")
+    const token = localStorage.getItem("adminToken");
     if (!token) {
-      setError("No token found. Please log in again.")
-      return
+      setError("No token found. Please log in again.");
+      return;
     }
 
-    setLoading(true)
-    setError("")
-    setData(null)
+    setLoading(true);
+    setError("");
+    setData(null);
 
     try {
       const response = await axios.get(`http://localhost:5000/api/report/${hrmsId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      })
-
-      setData(response.data)
+      });
+      setData(response.data);
     } catch (err) {
-      console.error("Error fetching report:", err)
+      console.error("Error fetching report:", err);
       if (err.response && err.response.status === 404) {
-        setError("No report found for this HRMS ID.")
+        setError("No report found for this HRMS ID.");
       } else {
-        setError("Failed to fetch report. Please check HRMS ID and try again.")
+        setError("Failed to fetch report. Please check HRMS ID and try again.");
       }
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleExport = async () => {
-    setExporting(true)
-    setExportError("")
-    const token = localStorage.getItem("adminToken")
+    setExporting(true);
+    setExportError("");
+    const token = localStorage.getItem("adminToken");
     if (!token) {
-      setExportError("Authentication token not found.")
-      setExporting(false)
-      return
+      setExportError("Authentication token not found.");
+      setExporting(false);
+      return;
     }
 
     try {
@@ -167,96 +403,28 @@ export default function Component() {
           Authorization: `Bearer ${token}`,
         },
         responseType: "blob",
-      })
+      });
 
-      const url = window.URL.createObjectURL(new Blob([response.data]))
-      const link = document.createElement("a")
-      link.href = url
-      const today = new Date().toISOString().slice(0, 10)
-      link.setAttribute("download", `registrations_export_${today}.xlsx`)
-      document.body.appendChild(link)
-      link.click()
-
-      link.parentNode.removeChild(link)
-      window.URL.revokeObjectURL(url)
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      const today = new Date().toISOString().slice(0, 10);
+      link.setAttribute("download", `registrations_export_${today}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
     } catch (err) {
-      console.error("Error exporting data:", err)
-      setExportError("Failed to export data. Please try again.")
+      console.error("Error exporting data:", err);
+      setExportError("Failed to export data. Please try again.");
     } finally {
-      setExporting(false)
+      setExporting(false);
     }
-  }
-
-  const getPersonalityInfo = (dominant) => {
-    return (
-      personalityTypes[dominant] || {
-        title: "Unknown Type",
-        suitability: "conditional",
-        description: "Personality type not recognized in current analysis framework.",
-      }
-    )
-  }
-
-  const getSuitabilityBadge = (suitability) => {
-    switch (suitability) {
-      case "most":
-        return (
-          <Badge className="bg-green-100 text-green-800 border-green-200">
-            <CheckCircle className="w-3 h-3 mr-1" />
-            Most Suitable
-          </Badge>
-        )
-      case "conditional":
-        return (
-          <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
-            <AlertTriangle className="w-3 h-3 mr-1" />
-            Conditionally Suitable
-          </Badge>
-        )
-      case "least":
-        return (
-          <Badge className="bg-red-100 text-red-800 border-red-200">
-            <XCircle className="w-3 h-3 mr-1" />
-            Least Suitable
-          </Badge>
-        )
-      default:
-        return <Badge variant="secondary">Unknown</Badge>
-    }
-  }
-
-  const getTraitAssessment = (trait, percentage) => {
-    const assessments = {
-      D: {
-        high: "Strong leadership and decision-making under pressure",
-        moderate: "Balanced assertiveness - ideal for emergency situations",
-        low: "May need confidence building for critical decisions",
-      },
-      I: {
-        high: "May be too social/distracted for focused operations",
-        moderate: "Good communication skills without distraction",
-        low: "Excellent focus on tasks - ideal for Loco Pilot role",
-      },
-      S: {
-        high: "Excellent patience and consistency for long shifts",
-        moderate: "Good stability with some adaptability",
-        low: "May struggle with routine operations and patience",
-      },
-      C: {
-        high: "Exceptional rule-following and safety compliance",
-        moderate: "Good attention to procedures and protocols",
-        low: "Needs strict training on safety protocols",
-      },
-    }
-
-    const level = percentage >= 70 ? "high" : percentage >= 40 ? "moderate" : "low"
-    return assessments[trait]?.[level] || "Assessment not available"
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-6xl mx-auto space-y-6">
-        {/* Header */}
         <Card>
           <CardHeader className="text-center relative">
             <Button variant="outline" onClick={handleLogout} className="absolute top-4 right-4">
@@ -265,9 +433,9 @@ export default function Component() {
             </Button>
             <div className="flex items-center justify-center gap-2 mb-2">
               <Train className="w-8 h-8 text-blue-600" />
-              <CardTitle className="text-2xl">DISC Analysis Report for Loco Pilots</CardTitle>
+              <CardTitle className="text-2xl">DISC Personality Report</CardTitle>
             </div>
-            <CardDescription>Behavioral fitness evaluation for railway operations personnel</CardDescription>
+            <CardDescription>Behavioral analysis based on the DISC model.</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex gap-4 max-w-md mx-auto">
@@ -292,7 +460,6 @@ export default function Component() {
 
         {data && (
           <>
-            {/* Personal Information */}
             <Card>
               <CardHeader>
                 <CardTitle>Personal & Professional Information</CardTitle>
@@ -320,22 +487,6 @@ export default function Component() {
                     <p className="font-medium">{new Date(data.doj).toLocaleDateString()}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Mobile</p>
-                    <p className="font-medium">{data.mobile}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Email</p>
-                    <p className="font-medium">{data.email}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Education</p>
-                    <p className="font-medium">{data.education}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Technical Qualification</p>
-                    <p className="font-medium">{data.technical}</p>
-                  </div>
-                  <div>
                     <p className="text-sm text-gray-600">Zone</p>
                     <p className="font-medium">{data.zone}</p>
                   </div>
@@ -347,231 +498,46 @@ export default function Component() {
               </CardContent>
             </Card>
 
-            {/* DISC Visualization Chart */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <BarChart3 className="w-5 h-5" />
                   DISC Profile Visualization
                 </CardTitle>
-                <CardDescription>Visual representation of personality traits and their percentages</CardDescription>
+                <CardDescription>Visual representation of personality traits scores.</CardDescription>
               </CardHeader>
               <CardContent>
-                <DISCChart  
+                <DISCChart
                   dScore={data.disc_d_score}
                   iScore={data.disc_i_score}
                   sScore={data.disc_s_score}
                   cScore={data.disc_c_score}
                 />
-                <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded bg-chart-1"></div>
-                    <span>Dominance: {data.disc_d_score}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded bg-chart-2"></div>
-                    <span>Influence: {data.disc_i_score}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded bg-chart-3"></div>
-                    <span>Steadiness: {data.disc_s_score}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded bg-chart-4"></div>
-                    <span>Compliance: {data.disc_c_score}</span>
-                  </div>
-                </div>
               </CardContent>
             </Card>
 
-            {/* DISC Assessment Scores */}
-            <Card>
+            <Card className="bg-slate-50 border-slate-200">
               <CardHeader>
-                <CardTitle>DISC Assessment Scores</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <BookOpen className="w-6 h-6 text-blue-600" />
+                  Detailed DISC Personality Report
+                </CardTitle>
+                <CardDescription>
+                  This analysis provides a deep look into behavioral patterns based on your scores.
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-x-4 gap-y-6">
-                  <div className="lg:col-span-1 md:col-span-3 col-span-2">
-                    <p className="text-sm text-gray-600">Dominant Type</p>
-                    <p className="font-bold text-lg">{data.disc_dominant}</p>
-                  </div>
-                  <div className="lg:col-span-4 md:col-span-3 col-span-2">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-6">
-                      <div>
-                        <p className="text-sm text-gray-600">D Score</p>
-                        <p className="font-medium">{data.disc_d_score}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">I Score</p>
-                        <p className="font-medium">{data.disc_i_score}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">S Score</p>
-                        <p className="font-medium">{data.disc_s_score}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">C Score</p>
-                        <p className="font-medium">{data.disc_c_score}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">D Percentage</p>
-                        <p className="font-medium">{data.disc_d_percentage}%</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">I Percentage</p>
-                        <p className="font-medium">{data.disc_i_percentage}%</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">S Percentage</p>
-                        <p className="font-medium">{data.disc_s_percentage}%</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">C Percentage</p>
-                        <p className="font-medium">{data.disc_c_percentage}%</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <DetailedDiscReport
+                  scores={{
+                    D: data.disc_d_score,
+                    I: data.disc_i_score,
+                    S: data.disc_s_score,
+                    C: data.disc_c_score,
+                  }}
+                />
               </CardContent>
             </Card>
 
-            {/* Personality Type Analysis */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Personality Type Analysis</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <p className="text-sm text-gray-600">Dominant Type</p>
-                    <p className="text-xl font-bold">{data.disc_dominant}</p>
-                    <p className="text-lg text-gray-700">{getPersonalityInfo(data.disc_dominant).title}</p>
-                  </div>
-
-                  <div>
-                    <p className="text-sm text-gray-600 mb-2">Suitability for Loco Pilot Role</p>
-                    {getSuitabilityBadge(getPersonalityInfo(data.disc_dominant).suitability)}
-                  </div>
-
-                  <Separator />
-
-                  <div>
-                    <p className="text-sm text-gray-600 mb-2">Analysis</p>
-                    <p className="text-sm leading-relaxed">{getPersonalityInfo(data.disc_dominant).description}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Detailed Trait Analysis */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Detailed Trait Analysis for Loco Pilot Role</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div className="p-4 border rounded-lg">
-                      <div className="flex justify-between items-center mb-2">
-                        <h4 className="font-medium">Dominance (D)</h4>
-                        <span className="text-lg font-bold">{data.disc_d_percentage}%</span>
-                      </div>
-                      <p className="text-sm text-gray-600">{getTraitAssessment("D", data.disc_d_percentage)}</p>
-                    </div>
-                    <div className="p-4 border rounded-lg">
-                      <div className="flex justify-between items-center mb-2">
-                        <h4 className="font-medium">Influence (I)</h4>
-                        <span className="text-lg font-bold">{data.disc_i_percentage}%</span>
-                      </div>
-                      <p className="text-sm text-gray-600">{getTraitAssessment("I", data.disc_i_percentage)}</p>
-                    </div>
-                  </div>
-                  <div className="space-y-4">
-                    <div className="p-4 border rounded-lg">
-                      <div className="flex justify-between items-center mb-2">
-                        <h4 className="font-medium">Steadiness (S)</h4>
-                        <span className="text-lg font-bold">{data.disc_s_percentage}%</span>
-                      </div>
-                      <p className="text-sm text-gray-600">{getTraitAssessment("S", data.disc_s_percentage)}</p>
-                    </div>
-                    <div className="p-4 border rounded-lg">
-                      <div className="flex justify-between items-center mb-2">
-                        <h4 className="font-medium">Compliance (C)</h4>
-                        <span className="text-lg font-bold">{data.disc_c_percentage}%</span>
-                      </div>
-                      <p className="text-sm text-gray-600">{getTraitAssessment("C", data.disc_c_percentage)}</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Recommendations */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Recommendations</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {getPersonalityInfo(data.disc_dominant).suitability === "most" && (
-                    <Alert>
-                      <CheckCircle className="h-4 w-4" />
-                      <AlertDescription>
-                        <strong>Highly Recommended:</strong> This personality profile is well-suited for Loco Pilot
-                        responsibilities. The candidate demonstrates strong alignment with safety protocols, operational
-                        consistency, and stress management requirements.
-                      </AlertDescription>
-                    </Alert>
-                  )}
-
-                  {getPersonalityInfo(data.disc_dominant).suitability === "conditional" && (
-                    <Alert>
-                      <AlertTriangle className="h-4 w-4" />
-                      <AlertDescription>
-                        <strong>Conditional Recommendation:</strong> This candidate can be suitable with additional
-                        training and monitoring. Focus on strengthening protocol adherence, stress management, and
-                        safety consciousness through targeted development programs.
-                      </AlertDescription>
-                    </Alert>
-                  )}
-
-                  {getPersonalityInfo(data.disc_dominant).suitability === "least" && (
-                    <Alert>
-                      <XCircle className="h-4 w-4" />
-                      <AlertDescription>
-                        <strong>Not Recommended:</strong> This personality profile presents significant challenges for
-                        Loco Pilot role requirements. Consider alternative positions that better match the candidate's
-                        behavioral strengths.
-                      </AlertDescription>
-                    </Alert>
-                  )}
-
-                  <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-                    <h4 className="font-medium mb-2">Ideal DISC Profile for Loco Pilots:</h4>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                      <div>
-                        <p className="font-medium">Dominance (D)</p>
-                        <p className="text-gray-600">Moderate (40-60%)</p>
-                      </div>
-                      <div>
-                        <p className="font-medium">Influence (I)</p>
-                        <p className="text-gray-600">Low-Moderate (20-50%)</p>
-                      </div>
-                      <div>
-                        <p className="font-medium">Steadiness (S)</p>
-                        <p className="text-gray-600">High (60-80%)</p>
-                      </div>
-                      <div>
-                        <p className="font-medium">Compliance (C)</p>
-                        <p className="text-gray-600">High (70-90%)</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Assessment Details */}
             <Card>
               <CardHeader>
                 <CardTitle>Assessment Details</CardTitle>
@@ -596,7 +562,6 @@ export default function Component() {
           </>
         )}
 
-        {/* Data Export */}
         <Card>
           <CardHeader>
             <CardTitle>Data Export</CardTitle>
@@ -626,5 +591,5 @@ export default function Component() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

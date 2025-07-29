@@ -5,7 +5,8 @@
   "build": {
     "appId": "com.yourcompany.yourapp",
     "productName": "DISC Personality App",
-    "asar": true,
+    "asar": false,
+    "afterPack": "scripts/install-backend-deps.js",
     "files": [
       "electron/**/*",
       "backend/**/*",
@@ -37,14 +38,16 @@
     }
   },
   "scripts": {
-  "dev": "npm run build && electron .",
-  "build": "cd my-project && npm install && npm run build",
-  "postinstall": "electron-builder install-app-deps",
-  "pack": "electron-builder --dir",
-  "dist": "electron-builder"
-},
+    "dev": "npm run build && electron .",
+    "build": "cd my-project && npm install && npm run build",
+    "prepare-backend": "cd backend && npm install && npx electron-rebuild -f -w sqlite3 --version 29.4.6",
+    "postinstall": "electron-builder install-app-deps",
+    "pack": "npm run build && npm run prepare-backend && electron-builder --dir",
+    "dist": "npm run build && npm run prepare-backend && electron-builder"
+  },
   "devDependencies": {
     "electron": "^29.4.6",
-    "electron-builder": "^24.0.0"
+    "electron-builder": "^24.0.0",
+    "electron-rebuild": "^3.2.9"
   }
 }
